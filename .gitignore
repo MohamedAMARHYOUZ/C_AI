@@ -2,6 +2,9 @@
 node_modules/
 **/node_modules/
 
+# Local API sources remain untracked
+API/
+
 # Environment secrets
 *.env
 
