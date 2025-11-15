@@ -443,6 +443,13 @@
       margin-top: 14px;
     }
 
+    .field-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     button {
       border: none;
       cursor: pointer;
@@ -511,6 +518,19 @@
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(236, 72, 153, 0.08));
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px dashed var(--border);
+      box-shadow: none;
+    }
+
+    .btn-ghost:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      transform: none;
     }
 
     .status {
@@ -665,6 +685,9 @@
               <span class="label-sub">Paste here the full text that contains the part you want to remove.</span>
             </label>
             <textarea id="sourceText" placeholder="Paste your large block of text here..."></textarea>
+            <div class="field-actions">
+              <button type="button" class="btn-ghost" id="clearSourceBtn">Clear original text</button>
+            </div>
           </div>
         </div>
 
@@ -708,6 +731,7 @@
     const sourceTextArea = document.getElementById('sourceText');
     const resultTextArea = document.getElementById('resultText');
     const cleanBtn = document.getElementById('cleanBtn');
+    const clearSourceBtn = document.getElementById('clearSourceBtn');
     const copyBtn = document.getElementById('copyBtn');
     const statusMsg = document.getElementById('statusMsg');
 
@@ -787,8 +811,7 @@
       }
     });
 
-    // Clean text
-    cleanBtn.addEventListener('click', () => {
+    const runClean = () => {
       const pattern = deleteTextArea.value;
       const source = sourceTextArea.value;
 
@@ -810,7 +833,33 @@
       } else {
         setStatus('The pattern was not found in the original text. No changes were made.', 'info');
       }
+    };
+
+    // Clean text
+    cleanBtn.addEventListener('click', runClean);
+
+    // Automatically process text after paste
+    sourceTextArea.addEventListener('paste', () => {
+      requestAnimationFrame(() => {
+        if (deleteTextArea.value) {
+          runClean();
+        }
+      });
     });
+
+    if (clearSourceBtn) {
+      clearSourceBtn.addEventListener('click', () => {
+        if (!sourceTextArea.value && !resultTextArea.value) {
+          setStatus('Original text is already empty.', 'warning');
+          return;
+        }
+
+        sourceTextArea.value = '';
+        resultTextArea.value = '';
+        setStatus('Original text cleared.', 'info');
+        sourceTextArea.focus();
+      });
+    }
 
     // Copy result
     copyBtn.addEventListener('click', () => {
