@@ -1,0 +1,10 @@
+# Dependency artifacts
+node_modules/
+**/node_modules/
+
+# Environment secrets
+*.env
+
+# OS cruft
+Thumbs.db
+.DS_Store

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Text Cleaner – Remove Specific Text</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #ec4899;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-dark: #0f172a;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-tertiary: #94a3b8;
+      --input-bg: #f1f5f9;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+      --transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 24px;
+      }
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .title-block {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .title-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+
+    .title-block h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0 0 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 768px) {
+      .title-block h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .title-block p {
+      margin: 12px 0 0;
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+      min-width: 180px;
+    }
+
+    .pill-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--input-bg);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pill-meta span {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .divider {
+      height: 2px;
+      margin: 28px 0;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .label-sub {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 14px 16px;
+      min-height: 110px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: "Monaco", "Menlo", monospace;
+      resize: vertical;
+      outline: none;
+      transition: all var(--transition);
+    }
+
+    textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    textarea:hover {
+      border-color: var(--primary-light);
+      background: #ffffff;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      background: #ffffff;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    @media (min-width: 900px) {
+      .row {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
+
+    .col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-group {
+      margin-bottom: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .result-wrapper textarea {
+      flex: 1;
+      min-height: 200px;
+    }
+
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all var(--transition);
+      outline: none;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width var(--transition), height var(--transition);
+    }
+
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    button:focus-visible {
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+      filter: brightness(1.08);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--input-bg);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(236, 72, 153, 0.08));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .status-icon {
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status--success {
+      color: var(--success);
+    }
+
+    .status--warning {
+      color: var(--warning);
+    }
+
+    .status--info {
+      color: var(--primary);
+    }
+
+    .helper-text {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      color: var(--primary);
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+
+    .chip:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    code {
+      background: var(--input-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Monaco", "Menlo", monospace;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="card">
+      <div class="card-header">
+        <div class="title-block">
+          <div class="title-badge">
+            <span class="title-badge-dot"></span>
+            TEXT CLEANER • TOOL
+          </div>
+          <h1>
+            Remove a specific text from any paragraph
+          </h1>
+          <p>Set your pattern once, paste your text, clean, then copy the result in one click.</p>
+        </div>
+
+        <div class="header-actions">
+          <div class="pill-meta">
+            Persistent pattern:
+            <span>stored locally</span>
+          </div>
+          <div class="chips-row">
+            <span class="chip">No account needed</span>
+            <span class="chip">Works offline</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field-group">
+        <label for="deleteText">
+          Text to remove (persistent)
+          <span class="label-sub">This will be removed from every text you process, until you change it.</span>
+        </label>
+        <textarea
+          id="deleteText"
+          placeholder="Example: a fixed disclaimer, a repeated sentence, a tag, a phrase, etc."
+        ></textarea>
+        <div class="helper-text">
+          Saved automatically in your browser using <code>localStorage</code>.
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <div class="field-group">
+            <label for="sourceText">
+              Original text
+              <span class="label-sub">Paste here the full text that contains the part you want to remove.</span>
+            </label>
+            <textarea
+              id="sourceText"
+              placeholder="Paste your large block of text here..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="field-group result-wrapper">
+            <label for="resultText">
+              Result after removal
+              <span class="label-sub">This is your cleaned text. You can copy it with one click.</span>
+            </label>
+            <textarea
+              id="resultText"
+              readonly
+              placeholder="The cleaned result will appear here after you click “Clean text”."
+            ></textarea>
+
+            <div class="result-actions">
+              <button class="btn-secondary" id="copyBtn">
+                <span class="btn-secondary-icon">📋</span>
+                Copy result
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top: 10px;">
+        <button class="btn-primary" id="cleanBtn">
+          🧹 Clean text (remove pattern)
+        </button>
+      </div>
+
+      <div class="status" id="statusMsg"></div>
+    </div>
+  </div>
+
+  <script>
+    const deleteTextArea = document.getElementById('deleteText');
+    const sourceTextArea = document.getElementById('sourceText');
+    const resultTextArea = document.getElementById('resultText');
+    const cleanBtn = document.getElementById('cleanBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const statusMsg = document.getElementById('statusMsg');
+
+    const STORAGE_KEY = 'shadow_delete_text_pattern';
+
+    function setStatus(message, type = 'info') {
+      statusMsg.textContent = '';
+      statusMsg.className = 'status';
+
+      let icon = 'ℹ️';
+      if (type === 'success') {
+        icon = '✅';
+        statusMsg.classList.add('status--success');
+      } else if (type === 'warning') {
+        icon = '⚠️';
+        statusMsg.classList.add('status--warning');
+      } else {
+        statusMsg.classList.add('status--info');
+      }
+
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'status-icon';
+      iconSpan.textContent = icon;
+
+      const textSpan = document.createElement('span');
+      textSpan.textContent = message;
+
+      statusMsg.appendChild(iconSpan);
+      statusMsg.appendChild(textSpan);
+    }
+
+    // Load saved pattern
+    const savedPattern = localStorage.getItem(STORAGE_KEY);
+    if (savedPattern) {
+      deleteTextArea.value = savedPattern;
+    }
+
+    // Save pattern automatically
+    deleteTextArea.addEventListener('input', () => {
+      localStorage.setItem(STORAGE_KEY, deleteTextArea.value);
+      if (deleteTextArea.value.trim()) {
+        setStatus('Pattern updated and saved locally.', 'info');
+      } else {
+        setStatus('Pattern cleared. No text will be removed until you set a new one.', 'warning');
+      }
+    });
+
+    // Clean text
+    cleanBtn.addEventListener('click', () => {
+      const pattern = deleteTextArea.value;
+      const source = sourceTextArea.value;
+
+      if (!pattern) {
+        setStatus('Please enter the text you want to remove.', 'warning');
+        return;
+      }
+
+      if (!source) {
+        setStatus('Please paste the original text to clean.', 'warning');
+        return;
+      }
+
+      const result = source.split(pattern).join('');
+      resultTextArea.value = result;
+
+      if (source.includes(pattern)) {
+        setStatus('All occurrences of the pattern have been removed.', 'success');
+      } else {
+        setStatus('The pattern was not found in the original text. No changes were made.', 'info');
+      }
+    });
+
+    // Copy result
+    copyBtn.addEventListener('click', () => {
+      const result = resultTextArea.value;
+
+      if (!result) {
+        setStatus('There is no result to copy yet.', 'warning');
+        return;
+      }
+
+      navigator.clipboard.writeText(result)
+        .then(() => {
+          setStatus('Result copied to clipboard.', 'success');
+        })
+        .catch(() => {
+          setStatus('Copy failed. Try selecting and copying manually.', 'warning');
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cleaner Insights</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #010512;
+            --card-bg: rgba(9, 14, 33, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --muted: #97a2c6;
+            --primary: #6a7bff;
+            --primary-strong: #8b5cf6;
+            --success: #4ade80;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 10% 20%, rgba(100, 116, 255, 0.25), transparent 45%),
+                radial-gradient(circle at 85% 0%, rgba(139, 92, 246, 0.2), transparent 55%),
+                var(--bg);
+            color: var(--text);
+            padding: 32px 16px 48px;
+        }
+
+        .app-shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: 0 35px 80px rgba(0, 0, 0, 0.55);
+            display: flex;
+            gap: 32px;
+        }
+
+        .side-nav {
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-link {
+            border-radius: 16px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+            transition: transform 0.15s ease, border 0.15s ease;
+        }
+
+        .nav-link:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            border-color: transparent;
+        }
+
+        .theme-toggle {
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-weight: 600;
+            padding: 10px 18px;
+            cursor: pointer;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.97);
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 2.6rem);
+        }
+
+        header p {
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .card small {
+            color: var(--muted);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-box {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-box span {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .stat-box strong {
+            font-size: 1.6rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.25);
+            transition: 0.3s;
+            border-radius: 20px;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .switch input:checked + .slider {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(20px);
+        }
+
+        .auto-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 12px 16px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .history-card {
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-card small {
+            color: var(--muted);
+        }
+
+        .history-card p {
+            margin: 0;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .pattern-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pattern-summary span {
+            border-radius: 999px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .status {
+            color: var(--muted);
+            min-height: 24px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .app-shell {
+                flex-direction: column;
+            }
+
+            .side-nav {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                flex: 1 0 140px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <nav class="side-nav">
+            <a href="index.html" class="nav-link">Cleaner</a>
+            <a href="features.html" class="nav-link active">Insights & History</a>
+            <a href="instructions.html" class="nav-link">GPT Instructions</a>
+            <button id="themeToggle" class="theme-toggle">Light Mode</button>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Insights & History</h1>
+                <p>Fine-tune automation, review previous runs, and inspect removal stats.</p>
+            </header>
+
+            <section class="card">
+                <h3>Usage Overview</h3>
+                <small>Totals accumulated from your local cleaning sessions.</small>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <span>Total Runs</span>
+                        <strong id="statRuns">0</strong>
+                    </div>
+                    <div class="stat-box">
+                        <span>Total Characters Removed</span>
+                        <strong id="statRemoved">0</strong>
+                    </div>
+                    <div class="stat-box">
+                        <span>Average Removal / Run</span>
+                        <strong id="statAverage">0</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>Automation</h3>
+                <small>Manage auto-copy and auto-send behaviors for future cleaning runs.</small>
+                <div class="auto-row">
+                    <div>
+                        <strong>Auto Copy Result</strong>
+                        <p class="muted">Copies the cleaned text whenever a run finishes.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="autoCopyToggle" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="auto-row">
+                    <div>
+                        <strong>Auto Send to GPT</strong>
+                        <p class="muted">Immediately sends the cleaned text to GPT after a run.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="autoSendToggle" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h3>History</h3>
+                        <small>The last six cleaning sessions saved locally.</small>
+                    </div>
+                    <button id="clearHistoryBtn">Clear History</button>
+                </div>
+                <div id="historyList" class="history-list"></div>
+            </section>
+
+            <section class="card">
+                <h3>Pattern Summary</h3>
+                <small>Occurrences removed in the most recent clean run.</small>
+                <div id="patternSummary" class="pattern-summary"></div>
+            </section>
+
+            <div class="status" id="statusMessage">Changes save automatically.</div>
+        </main>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            history: 'shadow_delete_clean_history',
+            autoCopy: 'shadow_delete_auto_copy',
+            autoSend: 'shadow_delete_auto_send',
+            summary: 'shadow_delete_pattern_summary',
+            restore: 'shadow_delete_restore_request'
+        };
+
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const applyTheme = (theme) => {
+            document.body.classList.toggle('light', theme === 'light');
+            if (themeToggleBtn) {
+                themeToggleBtn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+            }
+        };
+        const initialTheme = localStorage.getItem('shadow_delete_theme') || 'dark';
+        applyTheme(initialTheme);
+        themeToggleBtn?.addEventListener('click', () => {
+            const newTheme = document.body.classList.contains('light') ? 'dark' : 'light';
+            localStorage.setItem('shadow_delete_theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        const autoCopyToggle = document.getElementById('autoCopyToggle');
+        const autoSendToggle = document.getElementById('autoSendToggle');
+        const historyListEl = document.getElementById('historyList');
+        const patternSummaryEl = document.getElementById('patternSummary');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const statusEl = document.getElementById('statusMessage');
+        const statRuns = document.getElementById('statRuns');
+        const statRemoved = document.getElementById('statRemoved');
+        const statAverage = document.getElementById('statAverage');
+
+        const setStatus = (message, accent = false) => {
+            statusEl.textContent = message;
+            statusEl.style.color = accent ? 'var(--success)' : 'var(--muted)';
+        };
+
+        autoCopyToggle.checked = localStorage.getItem(STORAGE_KEYS.autoCopy) === 'true';
+        autoSendToggle.checked = localStorage.getItem(STORAGE_KEYS.autoSend) === 'true';
+
+        autoCopyToggle.addEventListener('change', () => {
+            localStorage.setItem(STORAGE_KEYS.autoCopy, autoCopyToggle.checked);
+            setStatus(autoCopyToggle.checked ? 'Auto copy enabled.' : 'Auto copy disabled.', true);
+        });
+
+        autoSendToggle.addEventListener('change', () => {
+            localStorage.setItem(STORAGE_KEYS.autoSend, autoSendToggle.checked);
+            setStatus(autoSendToggle.checked ? 'Auto send enabled.' : 'Auto send disabled.', true);
+        });
+
+        function loadHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEYS.history) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function loadStats() {
+            try {
+                return JSON.parse(localStorage.getItem('shadow_delete_usage_stats') || '{"totalRuns":0,"totalRemoved":0}');
+            } catch {
+                return { totalRuns: 0, totalRemoved: 0 };
+            }
+        }
+
+        function renderStats() {
+            const stats = loadStats();
+            statRuns.textContent = stats.totalRuns;
+            statRemoved.textContent = stats.totalRemoved;
+            statAverage.textContent = stats.totalRuns
+                ? Math.round(stats.totalRemoved / stats.totalRuns)
+                : 0;
+        }
+
+        function renderHistory() {
+            const entries = loadHistory();
+            if (!entries.length) {
+                historyListEl.innerHTML = '<small class="muted">No history yet. Run the cleaner to capture entries.</small>';
+                return;
+            }
+
+            historyListEl.innerHTML = entries
+                .map((entry, index) => {
+                    const date = new Date(entry.timestamp).toLocaleString();
+                    const originalSnippet = entry.original?.slice(0, 200) || '';
+                    const cleanedSnippet = entry.cleaned?.slice(0, 200) || '';
+                    return `
+                        <div class="history-card" data-index="${index}">
+                            <strong>Run #${entries.length - index}</strong>
+                            <small>${date}</small>
+                            <p><em>Original:</em> ${originalSnippet || '<span class="muted">(empty)</span>'}</p>
+                            <p><em>Cleaned:</em> ${cleanedSnippet || '<span class="muted">(empty)</span>'}</p>
+                            <div class="history-actions">
+                                <button class="primary" data-action="restore">Restore in Cleaner</button>
+                                <button data-action="copy">Copy Cleaned</button>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join('');
+        }
+
+        function renderPatternSummary() {
+            let summary = [];
+            try {
+                summary = JSON.parse(localStorage.getItem(STORAGE_KEYS.summary) || '[]');
+            } catch {
+                summary = [];
+            }
+
+            if (!summary.length) {
+                patternSummaryEl.innerHTML = '<small class="muted">No summary data yet. Clean some text first.</small>';
+                return;
+            }
+
+            patternSummaryEl.innerHTML = summary
+                .map((item) => `<span>${item.text} × ${item.count}</span>`)
+                .join('');
+        }
+
+        historyListEl.addEventListener('click', (event) => {
+            const card = event.target.closest('.history-card');
+            if (!card) return;
+
+            const index = Number(card.getAttribute('data-index'));
+            const entries = loadHistory();
+            const entry = entries[index];
+            if (!entry) return;
+
+            const action = event.target.getAttribute('data-action');
+            if (action === 'copy') {
+                navigator.clipboard.writeText(entry.cleaned || '').then(() => setStatus('Cleaned text copied.', true));
+            } else if (action === 'restore') {
+                localStorage.setItem(STORAGE_KEYS.restore, JSON.stringify(entry));
+                setStatus('Restoring in cleaner...', true);
+                setTimeout(() => (window.location.href = 'index.html'), 300);
+            }
+        });
+
+        clearHistoryBtn.addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEYS.history);
+            renderHistory();
+            setStatus('History cleared.', true);
+        });
+
+        renderStats();
+        renderHistory();
+        renderPatternSummary();
+    </script>
+</body>
+</html>

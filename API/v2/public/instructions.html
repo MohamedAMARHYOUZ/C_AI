@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPT Instructions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #010512;
+            --card-bg: rgba(11, 16, 36, 0.88);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --muted: #a0abc8;
+            --accent: #6a7bff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top, rgba(106, 123, 255, 0.25), transparent 55%),
+                radial-gradient(circle at bottom, rgba(139, 92, 246, 0.2), transparent 60%),
+                var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            color: var(--text);
+        }
+
+        .app-shell {
+            max-width: 1080px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+            display: flex;
+            gap: 24px;
+            backdrop-filter: blur(20px);
+        }
+
+        .side-nav {
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-link {
+            border-radius: 16px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+            transition: transform 0.15s ease, border 0.15s ease;
+        }
+
+        .nav-link:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-color: transparent;
+        }
+
+        .theme-toggle {
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.97);
+        }
+
+        .card {
+            flex: 1;
+            background: rgba(4, 8, 22, 0.8);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 2.4rem);
+        }
+
+        p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(8, 12, 28, 0.85);
+            color: var(--text);
+            padding: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        button,
+        a {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: white;
+        }
+
+        a {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+        }
+
+        button:active,
+        a:active {
+            transform: scale(0.98);
+        }
+
+        .status {
+            font-size: 0.95rem;
+            color: var(--muted);
+            min-height: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .app-shell {
+                flex-direction: column;
+                padding: 28px;
+            }
+
+            .side-nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                flex: 1 0 140px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <nav class="side-nav">
+            <a href="index.html" class="nav-link">Cleaner</a>
+            <a href="features.html" class="nav-link">Insights & History</a>
+            <a href="instructions.html" class="nav-link active">GPT Instructions</a>
+            <button id="themeToggle" class="theme-toggle">Light Mode</button>
+        </nav>
+
+        <section class="card">
+            <div>
+                <h1>GPT Instructions</h1>
+                <p>Describe how GPT should treat your cleaned text. These instructions are saved locally and applied automatically.</p>
+            </div>
+
+            <textarea id="instructionsInput" placeholder="Example: Summarize the cleaned text in three concise bullet points focusing on action items."></textarea>
+
+            <div class="actions">
+                <button id="clearInstructions">Clear</button>
+                <a href="index.html">Back to Cleaner</a>
+            </div>
+
+            <div id="statusMessage" class="status">Changes save automatically.</div>
+        </section>
+    </div>
+
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const applyTheme = (theme) => {
+            document.body.classList.toggle('light', theme === 'light');
+            if (themeToggleBtn) {
+                themeToggleBtn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+            }
+        };
+        const initialTheme = localStorage.getItem('shadow_delete_theme') || 'dark';
+        applyTheme(initialTheme);
+        themeToggleBtn?.addEventListener('click', () => {
+            const nextTheme = document.body.classList.contains('light') ? 'dark' : 'light';
+            localStorage.setItem('shadow_delete_theme', nextTheme);
+            applyTheme(nextTheme);
+        });
+
+        const STORAGE_KEY = 'shadow_delete_promptnotes';
+        const input = document.getElementById('instructionsInput');
+        const clearBtn = document.getElementById('clearInstructions');
+        const statusEl = document.getElementById('statusMessage');
+
+        input.value = localStorage.getItem(STORAGE_KEY) || '';
+
+        function setStatus(message) {
+            statusEl.textContent = message;
+        }
+
+        let saveTimer;
+        input.addEventListener('input', () => {
+            clearTimeout(saveTimer);
+            const value = input.value;
+            saveTimer = setTimeout(() => {
+                localStorage.setItem(STORAGE_KEY, value);
+                setStatus('Instructions saved.');
+            }, 250);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            localStorage.removeItem(STORAGE_KEY);
+            setStatus('Instructions cleared.');
+        });
+    </script>
+</body>
+</html>
