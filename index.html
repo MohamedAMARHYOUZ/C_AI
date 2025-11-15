@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Text Cleaner – Remove Specific Text</title>
+  <title>Text Cleaner â€“ Remove Specific Text</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,15 +53,113 @@
       line-height: 1.6;
     }
 
+    body.locked {
+      overflow: hidden;
+    }
+
+    body.locked .app-shell {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+    }
+
     .app-shell {
       width: 100%;
       max-width: 1200px;
       animation: fadeIn 0.6s ease-out;
     }
 
+    .access-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 300ms ease, visibility 300ms ease;
+    }
+
+    .access-gate--hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .access-gate__dialog {
+      width: min(420px, 100%);
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: var(--shadow-xl);
+      text-align: center;
+    }
+
+    .access-gate__title {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .access-gate__subtitle {
+      margin: 0 0 20px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .access-gate__input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--input-bg);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .access-gate__input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .access-gate__btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .access-gate__btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .access-gate__error {
+      min-height: 20px;
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--danger);
+    }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .card {
@@ -133,8 +232,17 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.2); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+      }
     }
 
     .title-block h1 {
@@ -369,8 +477,15 @@
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-10px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .status-icon {
@@ -430,14 +545,33 @@
     }
   </style>
 </head>
-<body>
+
+<body class="locked">
+  <div class="access-gate" id="accessGate">
+    <div class="access-gate__dialog">
+      <h2 class="access-gate__title">Quick Access Check</h2>
+      <p class="access-gate__subtitle">Answer with one of the approved keywords to unlock the text cleaner.</p>
+      <label for="accessInput" style="font-weight:600;color:var(--text-primary);margin-bottom:8px;">شنو سميتي </label>
+      <input
+        id="accessInput"
+        class="access-gate__input"
+        type="text"
+        inputmode="text"
+        placeholder="Type the secret keyword"
+        autocomplete="off"
+      />
+      <button class="access-gate__btn" id="accessSubmit">Unlock</button>
+      <div class="access-gate__error" id="accessError"></div>
+    </div>
+  </div>
+
   <div class="app-shell">
     <div class="card">
       <div class="card-header">
         <div class="title-block">
           <div class="title-badge">
             <span class="title-badge-dot"></span>
-            TEXT CLEANER • TOOL
+            TEXT CLEANER â€¢ TOOL
           </div>
           <h1>
             Remove a specific text from any paragraph
@@ -464,10 +598,8 @@
           Text to remove (persistent)
           <span class="label-sub">This will be removed from every text you process, until you change it.</span>
         </label>
-        <textarea
-          id="deleteText"
-          placeholder="Example: a fixed disclaimer, a repeated sentence, a tag, a phrase, etc."
-        ></textarea>
+        <textarea id="deleteText"
+          placeholder="Example: a fixed disclaimer, a repeated sentence, a tag, a phrase, etc."></textarea>
         <div class="helper-text">
           Saved automatically in your browser using <code>localStorage</code>.
         </div>
@@ -480,10 +612,7 @@
               Original text
               <span class="label-sub">Paste here the full text that contains the part you want to remove.</span>
             </label>
-            <textarea
-              id="sourceText"
-              placeholder="Paste your large block of text here..."
-            ></textarea>
+            <textarea id="sourceText" placeholder="Paste your large block of text here..."></textarea>
           </div>
         </div>
 
@@ -493,15 +622,12 @@
               Result after removal
               <span class="label-sub">This is your cleaned text. You can copy it with one click.</span>
             </label>
-            <textarea
-              id="resultText"
-              readonly
-              placeholder="The cleaned result will appear here after you click “Clean text”."
-            ></textarea>
+            <textarea id="resultText" readonly
+              placeholder="The cleaned result will appear here after you click â€œClean textâ€."></textarea>
 
             <div class="result-actions">
               <button class="btn-secondary" id="copyBtn">
-                <span class="btn-secondary-icon">📋</span>
+                <span class="btn-secondary-icon">ðŸ“‹</span>
                 Copy result
               </button>
             </div>
@@ -511,7 +637,7 @@
 
       <div class="field-group" style="margin-top: 10px;">
         <button class="btn-primary" id="cleanBtn">
-          🧹 Clean text (remove pattern)
+          ðŸ§¹ Clean text (remove pattern)
         </button>
       </div>
 
@@ -526,19 +652,24 @@
     const cleanBtn = document.getElementById('cleanBtn');
     const copyBtn = document.getElementById('copyBtn');
     const statusMsg = document.getElementById('statusMsg');
+    const accessGate = document.getElementById('accessGate');
+    const accessInput = document.getElementById('accessInput');
+    const accessSubmit = document.getElementById('accessSubmit');
+    const accessError = document.getElementById('accessError');
 
     const STORAGE_KEY = 'shadow_delete_text_pattern';
+    const ACCESS_CODES = ['عسيلة', 'المقود', '3ssila', 'Asila', '3sila']; // update this array to change the valid answers
 
     function setStatus(message, type = 'info') {
       statusMsg.textContent = '';
       statusMsg.className = 'status';
 
-      let icon = 'ℹ️';
+      let icon = 'â„¹ï¸';
       if (type === 'success') {
-        icon = '✅';
+        icon = 'âœ…';
         statusMsg.classList.add('status--success');
       } else if (type === 'warning') {
-        icon = '⚠️';
+        icon = 'âš ï¸';
         statusMsg.classList.add('status--warning');
       } else {
         statusMsg.classList.add('status--info');
@@ -553,6 +684,46 @@
 
       statusMsg.appendChild(iconSpan);
       statusMsg.appendChild(textSpan);
+    }
+
+    if (!accessGate || !accessInput || !accessSubmit || !accessError) {
+      document.body.classList.remove('locked');
+    } else {
+      const allowedAnswers = new Set(
+        ACCESS_CODES.map((code) => String(code).trim().toLowerCase())
+      );
+
+      function handleAccessAttempt() {
+        const answer = accessInput.value.trim().toLowerCase();
+
+        if (!answer) {
+          accessError.textContent = 'Please provide an answer before continuing.';
+          return;
+        }
+
+        if (allowedAnswers.has(answer)) {
+          document.body.classList.remove('locked');
+          accessGate.classList.add('access-gate--hidden');
+          accessInput.value = '';
+          accessError.textContent = '';
+          setStatus('Access granted. You can start cleaning text now.', 'success');
+        } else {
+          accessError.textContent = 'That code is not correct. Try again.';
+          accessInput.focus();
+          accessInput.select();
+        }
+      }
+
+      window.addEventListener('load', () => {
+        accessInput.focus();
+      });
+
+      accessSubmit.addEventListener('click', handleAccessAttempt);
+      accessInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          handleAccessAttempt();
+        }
+      });
     }
 
     // Load saved pattern
@@ -615,4 +786,6 @@
     });
   </script>
 </body>
+
 </html>
+
